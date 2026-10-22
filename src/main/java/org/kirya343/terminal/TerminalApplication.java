@@ -12,48 +12,37 @@ import org.kirya343.terminal.logging.LogCollector;
 
 public final class TerminalApplication {
 
-    public static void run(DiagnosticManager manager) {
+    public static DiagnosticTerminal create(
+            DiagnosticManager manager
+    ) throws Exception {
         LogBuffer logBuffer = new LogBuffer(1000);
         LogCollector logCollector = new LogCollector(logBuffer);
 
         DiagnosticLoggingConfigurer loggingConfigurer =
             new DiagnosticLoggingConfigurer(logCollector);
 
-        try {
-            loggingConfigurer.configure();
+        loggingConfigurer.configure();
 
-            try (Terminal terminal = TerminalBuilder.builder()
-                    .system(true)
-                    .build()) {
+        Terminal terminal = TerminalBuilder.builder()
+            .system(true)
+            .build();
 
-                DiagnosticScreenRenderer renderer =
-                    new DiagnosticScreenRenderer(terminal);
+        DiagnosticScreenRenderer renderer =
+            new DiagnosticScreenRenderer(terminal);
 
-                DiagnosticScreen screen = new DiagnosticScreen(
-                    terminal,
-                    renderer,
-                    new DiagnosticContentLayout()
-                );
+        DiagnosticScreen screen = new DiagnosticScreen(
+            terminal,
+            renderer,
+            new DiagnosticContentLayout()
+        );
 
-                TerminalCommandExecutor commandExecutor =
-                    new TerminalCommandExecutor(manager, screen);
+        TerminalCommandExecutor commandExecutor =
+            new TerminalCommandExecutor(manager, screen);
 
-                DiagnosticTerminal diagnosticTerminal =
-                    new DiagnosticTerminal(
-                        terminal,
-                        screen,
-                        commandExecutor
-                    );
-
-                diagnosticTerminal.start();
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(
-                "Failed to start diagnostic terminal",
-                e
-            );
-        } finally {
-            loggingConfigurer.stop();
-        }
+        return new DiagnosticTerminal(
+            terminal,
+            screen,
+            commandExecutor
+        );
     }
 }
