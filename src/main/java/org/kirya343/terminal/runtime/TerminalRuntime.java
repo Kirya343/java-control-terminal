@@ -2,6 +2,7 @@ package org.kirya343.terminal.runtime;
 
 import org.kirya343.terminal.DiagnosticTerminal;
 import org.kirya343.terminal.TerminalApplication;
+import org.kirya343.terminal.core.DiagnosticComponentScanner;
 import org.kirya343.terminal.core.DiagnosticManager;
 
 public final class TerminalRuntime {
@@ -11,9 +12,9 @@ public final class TerminalRuntime {
 
     public static void launch(
             Class<?> applicationClass,
-            String[] args,
-            DiagnosticManager manager
+            String[] args
     ) {
+        DiagnosticManager manager = DiagnosticComponentScanner.scan("org.kirya343.terminal");
 
         try {
             DiagnosticTerminal terminal =

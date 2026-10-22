@@ -4,17 +4,17 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.kirya343.terminal.core.DiagnosticComponent;
+import org.kirya343.terminal.core.DiagnosticComponentScanner;
 import org.kirya343.terminal.core.DiagnosticTextBuilder;
 import org.kirya343.terminal.models.CommandResult;
 import org.kirya343.terminal.models.TextResult;
 
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor 
 public class HelpCommand implements DiagnosticCommand {
 
-    private final List<DiagnosticCommand> commands;
-    private final List<DiagnosticComponent> components;
+    private final List<DiagnosticCommand> commands = 
+        DiagnosticComponentScanner.scanCommands("org.kirya343.terminal");
+    private final List<DiagnosticComponent> components = 
+        DiagnosticComponentScanner.scanComponents("org.kirya343.terminal");
     
     @Override
     public String getName() {
