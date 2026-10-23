@@ -41,6 +41,7 @@ public class DiagnosticManager {
             commandName = componentId + " " + commandName;
         }
 
+        System.out.println("Register command: " + command.getName());
         log.debug("Register command: {}", commandName);
         
         DiagnosticCommand existing = commands.putIfAbsent(commandName, command);
@@ -50,6 +51,10 @@ public class DiagnosticManager {
                 "Command already registered: " + command.getName()
             );
         }
+    }
+
+    public List<DiagnosticCommand> getCommands() {
+        return commands.values().stream().toList();
     }
 
     public Map.Entry<String, DiagnosticCommand> findCommand(

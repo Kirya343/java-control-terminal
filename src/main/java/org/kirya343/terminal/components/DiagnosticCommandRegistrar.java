@@ -10,10 +10,14 @@ public final class DiagnosticCommandRegistrar {
             DiagnosticManager manager,
             List<DiagnosticCommandProvider> providers
     ) {
-        providers.stream()
-            .forEach(provider -> {
-                provider.getCommands().stream().forEach(manager::registerCommand);
-                provider.getComponents().stream().forEach(manager::registerComponent);
-            });
+        providers.stream().forEach(provider -> register(manager, provider));
+    }
+
+    public void register(
+            DiagnosticManager manager,
+            DiagnosticCommandProvider provider
+    ) {
+        provider.getCommands().stream().forEach(manager::registerCommand);
+        provider.getComponents().stream().forEach(manager::registerComponent);
     }
 }

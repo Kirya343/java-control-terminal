@@ -3,6 +3,9 @@ package org.kirya343.terminal.runtime;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.function.Consumer;
+
+import org.kirya343.terminal.components.DiagnosticCommandProvider;
 
 public final class ApplicationLauncher {
 
@@ -11,7 +14,8 @@ public final class ApplicationLauncher {
 
     public static void launch(
             Class<?> applicationClass,
-            String[] args
+            String[] args,
+            Consumer<DiagnosticCommandProvider> registerProvider
     ) {
         try {
             Method main = applicationClass.getMethod(
