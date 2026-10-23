@@ -1,4 +1,4 @@
-package org.kirya343.terminal;
+package org.kirya343.terminal.console;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -6,9 +6,6 @@ import java.util.Deque;
 import java.util.List;
 
 import org.jline.terminal.Terminal;
-import org.kirya343.terminal.console.DiagnosticContentLayout;
-import org.kirya343.terminal.console.DiagnosticScreenFrame;
-import org.kirya343.terminal.console.DiagnosticScreenRenderer;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

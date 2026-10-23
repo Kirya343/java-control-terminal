@@ -1,4 +1,4 @@
-package org.kirya343.terminal;
+package org.kirya343.terminal.console;
 
 import org.jline.terminal.Attributes;
 import org.jline.terminal.Terminal;

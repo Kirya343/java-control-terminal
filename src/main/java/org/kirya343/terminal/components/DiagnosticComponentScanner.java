@@ -1,13 +1,11 @@
 package org.kirya343.terminal.components;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.kirya343.terminal.components.commands.DiagnosticCommand;
-import org.kirya343.terminal.components.commands.HelpCommand;
-import org.kirya343.terminal.components.commands.TerminalCommand;
-import org.kirya343.terminal.core.DiagnosticManager;
 
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
@@ -18,118 +16,84 @@ public final class DiagnosticComponentScanner {
     private DiagnosticComponentScanner() {
     }
 
-    public static DiagnosticManager scan(String basePackage) {
-        List<Class<? extends DiagnosticCommand>> commandClasses =
-                findCommandClasses(basePackage);
+    public static List<DiagnosticComponent> scanComponents(String basePackage) {
 
-        List<Class<? extends DiagnosticComponent>> componentClasses =
-                findComponentClasses(basePackage);
-
-        List<DiagnosticCommand> commands = new ArrayList<>();
-        List<DiagnosticComponent> components = new ArrayList<>();
-
-        for (Class<? extends DiagnosticCommand> clazz : commandClasses) {
-            if (clazz.equals(HelpCommand.class)) {
-                continue;
-            }
-
-            commands.add(createInstance(clazz));
-        }
-
-        for (Class<? extends DiagnosticComponent> clazz : componentClasses) {
-            components.add(createInstance(clazz));
-        }
-
-        commands.add(new HelpCommand(() -> commands, components));
-
-        return new DiagnosticManager(commands, components);
+        return scan(basePackage, DiagnosticComponent.class);
     }
 
-    private static List<Class<? extends DiagnosticCommand>> findCommandClasses(
-            String basePackage
-    ) {
-        List<Class<? extends DiagnosticCommand>> classes = new ArrayList<>();
+    public static List<DiagnosticCommand> scanCommands(String basePackage) {
 
-        try (ScanResult result = new ClassGraph()
+        return scan(basePackage, DiagnosticCommand.class);
+    }
+
+    private static <T> List<T> scan(
+            String basePackage,
+            Class<T> componentType
+    ) {
+        ClassLoader classLoader =
+                Thread.currentThread().getContextClassLoader();
+
+        List<T> components = new ArrayList<>();
+
+        try (ScanResult scanResult = new ClassGraph()
+                .enableClassLoaders(classLoader)
                 .enableClassInfo()
-                .enableAnnotationInfo()
                 .acceptPackages(basePackage)
                 .scan()) {
 
-            for (ClassInfo info : result.getClassesWithAnnotation(
-                    TerminalCommand.class.getName())) {
+            List<ClassInfo> implementations =
+                    scanResult.getAllClassesImplementing(componentType.getName());
 
-                if (!info.implementsInterface(DiagnosticCommand.class.getName())) {
-                    continue;
-                }
-
-                if (info.isAbstract() || info.isInterface()) {
-                    continue;
-                }
+            for (ClassInfo classInfo : implementations) {
+                String className = classInfo.getName();
 
                 try {
-                    classes.add(Class.forName(
-                            info.getName(),
+                    Class<?> cls = Class.forName(
+                            className,
                             false,
-                            Thread.currentThread().getContextClassLoader()
-                    ).asSubclass(DiagnosticCommand.class));
-                } catch (ClassNotFoundException e) {
-                    throw new IllegalStateException(
-                            "Cannot load command: " + info.getName(), e
+                            classLoader
                     );
+
+                    if (cls.isInterface()
+                            || Modifier.isAbstract(cls.getModifiers())) {
+                        continue;
+                    }
+
+                    Constructor<?> constructor;
+
+                    try {
+                        constructor = cls.getConstructor();
+                    } catch (NoSuchMethodException e) {
+                        System.out.println(
+                                "[Scanner] Skipped (no public no-arg constructor): "
+                                        + className
+                        );
+                        continue;
+                    }
+
+                    T component = componentType.cast(
+                            constructor.newInstance()
+                    );
+
+                    components.add(component);
+
+                    System.out.println(
+                            "[Scanner] Registered: " + className
+                    );
+
+                } catch (ReflectiveOperationException e) {
+                    System.err.println(
+                            "[Scanner] Failed to instantiate: " + className
+                    );
+                    e.printStackTrace();
                 }
             }
+
+        } catch (Exception e) {
+            System.err.println("[Scanner] Scan failed");
+            e.printStackTrace();
         }
 
-        return classes;
-    }
-
-    private static List<Class<? extends DiagnosticComponent>> findComponentClasses(
-            String basePackage
-    ) {
-        List<Class<? extends DiagnosticComponent>> classes = new ArrayList<>();
-
-        try (ScanResult result = new ClassGraph()
-                .enableClassInfo()
-                .enableAnnotationInfo()
-                .acceptPackages(basePackage)
-                .scan()) {
-
-            for (ClassInfo info : result.getClassesWithAnnotation(
-                    TerminalComponent.class.getName())) {
-
-                if (!info.implementsInterface(DiagnosticComponent.class.getName())) {
-                    continue;
-                }
-
-                if (info.isAbstract() || info.isInterface()) {
-                    continue;
-                }
-
-                try {
-                    classes.add(Class.forName(
-                            info.getName(),
-                            false,
-                            Thread.currentThread().getContextClassLoader()
-                    ).asSubclass(DiagnosticComponent.class));
-                } catch (ClassNotFoundException e) {
-                    throw new IllegalStateException(
-                            "Cannot load command: " + info.getName(), e
-                    );
-                }
-            }
-        }
-
-        return classes;
-    }
-
-    private static <T> T createInstance(Class<? extends T> clazz) {
-        try {
-            return clazz.getDeclaredConstructor().newInstance();
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException(
-                    "Cannot create instance: " + clazz.getName(), e
-            );
-        }
+        return components;
     }
 }

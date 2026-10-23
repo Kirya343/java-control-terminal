@@ -1,21 +1,29 @@
 package org.kirya343.terminal.runtime;
 
-import org.kirya343.terminal.DiagnosticTerminal;
 import org.kirya343.terminal.TerminalApplication;
 import org.kirya343.terminal.components.DiagnosticComponentScanner;
+import org.kirya343.terminal.console.DiagnosticTerminal;
 import org.kirya343.terminal.core.DiagnosticManager;
 
 public final class TerminalRuntime {
 
-    private TerminalRuntime() {
-    }
-
     public static void launch(
             Class<?> applicationClass,
-            String basePackage,
             String[] args
     ) {
-        DiagnosticManager manager = DiagnosticComponentScanner.scan(basePackage);
+
+        String currentLibBasePackage = TerminalApplication.class
+            .getPackageName();
+
+        String launchingAppPackage = applicationClass.getPackageName();
+        
+        DiagnosticManager manager = new DiagnosticManager(
+            DiagnosticComponentScanner.scanCommands(currentLibBasePackage), 
+            DiagnosticComponentScanner.scanComponents(currentLibBasePackage)
+        );
+
+        DiagnosticComponentScanner.scanCommands(launchingAppPackage).forEach(manager::registerCommand);
+        DiagnosticComponentScanner.scanComponents(launchingAppPackage).forEach(manager::registerComponent);
 
         try {
             DiagnosticTerminal terminal =

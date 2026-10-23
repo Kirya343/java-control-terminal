@@ -21,14 +21,16 @@ public class DiagnosticManager {
         List<DiagnosticComponent> components
     ) {
         commands.forEach(this::registerCommand);
-        
-        components.forEach(c -> 
-            c.getCommands().forEach(cm -> 
-                registerCommand(cm, c.getComponentId())));
+        components.forEach(this::registerComponent);
     }
 
     public void registerCommand(DiagnosticCommand command) {
         registerCommand(command, null);
+    }
+
+    public void registerComponent(DiagnosticComponent component) {
+        component.getCommands().forEach(cm -> 
+            registerCommand(cm, component.getComponentId()));
     }
 
     public void registerCommand(DiagnosticCommand command, String componentId) {
