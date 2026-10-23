@@ -34,11 +34,11 @@ public class DiagnosticScreen {
     private String status = "ONLINE";
 
     private int contentHeight() {
-        return Math.max(1, terminal.getHeight() - 7);
+        return Math.max(1, terminal.getSize().getRows() - 7);
     }
 
     private int terminalWidth() {
-        return Math.max(MIN_TERMINAL_WIDTH, terminal.getWidth());
+        return Math.max(MIN_TERMINAL_WIDTH, terminal.getSize().getColumns());
     }
 
     public synchronized void render() {
@@ -65,7 +65,7 @@ public class DiagnosticScreen {
         renderer.render(frame);
         
         terminal.writer().print(
-            "\033[" + (terminal.getHeight() - 2) + ";" + (cursorPosition + 5) + "H"
+            "\033[" + (terminal.getSize().getRows() - 2) + ";" + (cursorPosition + 5) + "H"
         );
 
         terminal.flush();

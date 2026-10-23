@@ -110,7 +110,7 @@ public class DiagnosticScreenRenderer {
     }
 
     private int terminalWidth() {
-        return Math.max(MIN_TERMINAL_WIDTH, terminal.getWidth());
+        return Math.max(MIN_TERMINAL_WIDTH, terminal.getSize().getColumns());
     }
 
     private String padRight(String value, int width) {

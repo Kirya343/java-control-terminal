@@ -33,7 +33,7 @@ public class DiagnosticTerminal {
 
             terminal.flush();
 
-            //screen.render();
+            screen.render();
 
             while (true) {
                 int key = terminal.reader().read(100);

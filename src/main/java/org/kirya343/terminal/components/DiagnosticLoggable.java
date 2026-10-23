@@ -1,4 +1,4 @@
-package org.kirya343.terminal.core;
+package org.kirya343.terminal.components;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.kirya343.terminal.core.DiagnosticTextBuilder;
 
 @Slf4j 
 public abstract class DiagnosticLoggable {

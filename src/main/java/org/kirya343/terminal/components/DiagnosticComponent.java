@@ -1,8 +1,8 @@
-package org.kirya343.terminal.core;
+package org.kirya343.terminal.components;
 
 import java.util.List;
 
-import org.kirya343.terminal.commands.DiagnosticCommand;
+import org.kirya343.terminal.components.commands.DiagnosticCommand;
 
 public interface DiagnosticComponent {
 

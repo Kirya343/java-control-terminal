@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.kirya343.terminal.commands.DiagnosticCommand;
+import org.kirya343.terminal.components.DiagnosticComponent;
+import org.kirya343.terminal.components.commands.DiagnosticCommand;
 
 import lombok.extern.slf4j.Slf4j;
 

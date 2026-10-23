@@ -3,7 +3,7 @@ package org.kirya343.terminal.core;
 import java.util.List;
 
 import org.kirya343.terminal.DiagnosticScreen;
-import org.kirya343.terminal.commands.DiagnosticCommand;
+import org.kirya343.terminal.components.commands.DiagnosticCommand;
 import org.kirya343.terminal.models.CommandResult;
 import org.kirya343.terminal.models.StreamingResult;
 import org.kirya343.terminal.models.TextResult;

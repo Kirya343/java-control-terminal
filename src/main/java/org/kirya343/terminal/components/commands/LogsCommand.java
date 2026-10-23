@@ -1,4 +1,4 @@
-package org.kirya343.terminal.commands;
+package org.kirya343.terminal.components.commands;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -15,6 +15,7 @@ import org.kirya343.terminal.models.StreamMode;
 import org.kirya343.terminal.models.StreamingResult;
 import org.kirya343.terminal.models.TextResult;
 
+@TerminalCommand 
 public class LogsCommand implements DiagnosticCommand {
 
     private int limit = 50;
