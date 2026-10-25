@@ -4,9 +4,34 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.kirya343</groupId>
+    <groupId>io.github.kirya343</groupId>
     <artifactId>java-control-terminal</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
+
+    <name>Java Control Terminal</name>
+    <description>A reusable diagnostic terminal for Java applications.</description>
+    <url>https://github.com/kirya343/java-control-terminal</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/license/mit</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>kirya343</id>
+            <name>Kirill</name>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/kirya343/java-control-terminal.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/kirya343/java-control-terminal.git</developerConnection>
+        <url>https://github.com/kirya343/java-control-terminal</url>
+    </scm>
 
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
@@ -46,4 +71,82 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <!-- Компиляция Java 21 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.14.1</version>
+                <configuration>
+                    <release>21</release>
+                </configuration>
+            </plugin>
+
+            <!-- Исходный код -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Javadoc -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.11.3</version>
+                <configuration>
+                    <source>21</source>
+                    <doclint>none</doclint>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- GPG-подписи -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>3.2.8</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <keyname>91222743A62ADBFE</keyname>
+                </configuration>
+            </plugin>
+
+            <!-- Создание ZIP для Maven Central -->
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.12.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <skipUpload>true</skipUpload>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
