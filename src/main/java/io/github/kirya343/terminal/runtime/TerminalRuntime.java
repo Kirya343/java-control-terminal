@@ -17,10 +17,28 @@ public final class TerminalRuntime {
     public static void launch(
             Class<?> applicationClass,
             String applicationName,
-            String[] args
+            String[] args,
+            ApplicationAdapter adapter
+    ) {
+        launch(
+            applicationClass,
+            applicationName,
+            args,
+            adapter,
+            TerminalConfig.defaultConfig()
+        );
+    }
+
+    public static void launch(
+            Class<?> applicationClass,
+            String applicationName,
+            String[] args,
+            ApplicationAdapter adapter,
+            TerminalConfig config
     ) {
         try {
-            TerminalInstance terminalInstance = TerminalApplication.create(applicationName);
+
+            TerminalInstance terminalInstance = TerminalApplication.create(applicationName, config);
 
             DiagnosticManager manager = terminalInstance.manager();
 
@@ -40,19 +58,44 @@ public final class TerminalRuntime {
 
             DiagnosticTerminal terminal = terminalInstance.terminal();
 
+            ApplicationLifecycle lifecycle = new ApplicationLifecycle() {
+
+                @Override
+                public void onStarted() {
+                    terminalInstance.terminal().getScreen().setStatus("ONLINE");
+
+                    String appPackage = applicationClass.getPackageName();
+
+                    DiagnosticComponentScanner.scanCommands(appPackage)
+                        .forEach(manager::registerCommand);
+
+                    DiagnosticComponentScanner.scanComponents(appPackage)
+                        .forEach(manager::registerComponent);
+                }
+
+                @Override
+                public void onStopped() {
+                    terminalInstance.terminal().getScreen().setStatus("OFFLINE");
+                    log.info("Application stopped");
+                }
+
+                @Override
+                public void onFailed(Throwable exception) {
+                    terminalInstance.terminal().getScreen().setStatus("OFFLINE");
+                    log.error("Application failed", exception);
+                }
+            };
+
             Thread applicationThread = new Thread(
                 () -> {
                     try {
                         ApplicationLauncher.launch(
                             applicationClass,
                             args,
-                            registerProvider
+                            registerProvider,
+                            adapter,
+                            lifecycle
                         );
-
-                        String launchingAppPackage = applicationClass.getPackageName();
-
-                        DiagnosticComponentScanner.scanCommands(launchingAppPackage).forEach(manager::registerCommand);
-                        DiagnosticComponentScanner.scanComponents(launchingAppPackage).forEach(manager::registerComponent);
                     } catch (Throwable e) {
                         // Передать ошибку в диагностическую систему.
                         log.debug("Application launch failed: {}", e);

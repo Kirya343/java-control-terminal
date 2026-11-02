@@ -28,7 +28,8 @@ public class DiagnosticScreen {
 
     @Getter 
     private int cursorPosition = 0;
-    private String status = "ONLINE";
+
+    private String status = "OFFLINE";
 
     private int contentHeight() {
         return Math.max(1, terminal.getSize().getRows() - 7);

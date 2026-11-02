@@ -6,7 +6,7 @@
 
     <groupId>io.github.kirya343</groupId>
     <artifactId>java-control-terminal</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
 
     <name>Java Control Terminal</name>
     <description>A reusable diagnostic terminal for Java applications.</description>

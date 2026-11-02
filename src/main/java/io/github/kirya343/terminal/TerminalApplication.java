@@ -13,11 +13,18 @@ import io.github.kirya343.terminal.core.TerminalCommandExecutor;
 import io.github.kirya343.terminal.logging.DiagnosticLoggingConfigurer;
 import io.github.kirya343.terminal.logging.LogBuffer;
 import io.github.kirya343.terminal.logging.LogCollector;
+import io.github.kirya343.terminal.runtime.TerminalConfig;
 import io.github.kirya343.terminal.runtime.TerminalInstance;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j 
 public final class TerminalApplication {
 
-    public static TerminalInstance create(String applicationName) throws Exception {
+    public static TerminalInstance create(
+        String applicationName, 
+        TerminalConfig config
+    ) throws Exception {
+
         LogBuffer logBuffer = new LogBuffer(1000);
         LogCollector logCollector = new LogCollector(logBuffer);
 
@@ -44,12 +51,22 @@ public final class TerminalApplication {
         TerminalCommandExecutor commandExecutor =
             new TerminalCommandExecutor(manager, screen);
 
+        DiagnosticTerminal diagnosticTerminal = new DiagnosticTerminal(
+            terminal,
+            screen,
+            commandExecutor
+        );
+
+        config.getStartupTasks().forEach(task -> {
+            try {
+                task.accept(diagnosticTerminal);
+            } catch (Exception e) {
+                log.error("Terminal startup task failed", e);
+            }
+        });
+
         return new TerminalInstance(
-            new DiagnosticTerminal(
-                terminal,
-                screen,
-                commandExecutor
-            ),
+            diagnosticTerminal,
             manager
         );
     }

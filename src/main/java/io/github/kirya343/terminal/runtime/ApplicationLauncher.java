@@ -1,8 +1,6 @@
 package io.github.kirya343.terminal.runtime;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.function.Consumer;
 
 import io.github.kirya343.terminal.components.DiagnosticCommandProvider;
@@ -15,24 +13,19 @@ public final class ApplicationLauncher {
     public static void launch(
             Class<?> applicationClass,
             String[] args,
-            Consumer<DiagnosticCommandProvider> registerProvider
+            Consumer<DiagnosticCommandProvider> registerProvider,
+            ApplicationAdapter adapter,
+            ApplicationLifecycle lifecycle
     ) {
+
         try {
-            Method main = applicationClass.getMethod(
-                "main",
-                String[].class,
-                Consumer.class
+
+            adapter.launch(
+                applicationClass,
+                args,
+                registerProvider,
+                lifecycle
             );
-
-            if (!Modifier.isStatic(
-                    main.getModifiers()
-            )) {
-                throw new IllegalArgumentException(
-                    "Application main method must be static"
-                );
-            }
-
-            main.invoke(null, (Object) args, registerProvider);
 
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException(
@@ -49,6 +42,12 @@ public final class ApplicationLauncher {
                 cause
             );
         } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(
+                "Failed to launch application: "
+                    + applicationClass.getName(),
+                e
+            );
+        } catch (Exception e) {
             throw new RuntimeException(
                 "Failed to launch application: "
                     + applicationClass.getName(),
