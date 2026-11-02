@@ -13,6 +13,7 @@ public class DiagnosticScreenRenderer {
 
     private static final int MIN_TERMINAL_WIDTH = 10;
 
+    private final String applicationName;
     private final Terminal terminal;
 
     public synchronized void render(DiagnosticScreenFrame frame) {
@@ -53,7 +54,7 @@ public class DiagnosticScreenRenderer {
         String status,
         int innerWidth
     ) {
-        String title = " KAI MUSIC DIAGNOSTICS ";
+        String title = " " + applicationName.toUpperCase() + " ";
         int titleWidth = displayWidth(title);
 
         int remainingWidth = Math.max(0, innerWidth - titleWidth);

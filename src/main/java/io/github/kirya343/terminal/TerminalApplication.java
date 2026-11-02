@@ -17,7 +17,7 @@ import io.github.kirya343.terminal.runtime.TerminalInstance;
 
 public final class TerminalApplication {
 
-    public static TerminalInstance create() throws Exception {
+    public static TerminalInstance create(String applicationName) throws Exception {
         LogBuffer logBuffer = new LogBuffer(1000);
         LogCollector logCollector = new LogCollector(logBuffer);
 
@@ -31,7 +31,7 @@ public final class TerminalApplication {
             .build();
 
         DiagnosticScreenRenderer renderer =
-            new DiagnosticScreenRenderer(terminal);
+            new DiagnosticScreenRenderer(applicationName, terminal);
 
         DiagnosticScreen screen = new DiagnosticScreen(
             terminal,

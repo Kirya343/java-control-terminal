@@ -16,10 +16,11 @@ public final class TerminalRuntime {
 
     public static void launch(
             Class<?> applicationClass,
+            String applicationName,
             String[] args
     ) {
         try {
-            TerminalInstance terminalInstance = TerminalApplication.create();
+            TerminalInstance terminalInstance = TerminalApplication.create(applicationName);
 
             DiagnosticManager manager = terminalInstance.manager();
 
