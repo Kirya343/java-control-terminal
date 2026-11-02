@@ -1,4 +1,4 @@
-package io.github.kirya343.terminal.components.builtin;
+package io.github.kirya343.terminal.command.builtin;
 
 import java.util.Comparator;
 import java.util.List;
