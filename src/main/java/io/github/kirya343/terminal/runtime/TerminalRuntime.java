@@ -3,12 +3,12 @@ package io.github.kirya343.terminal.runtime;
 import java.util.function.Consumer;
 
 import io.github.kirya343.terminal.TerminalApplication;
-import io.github.kirya343.terminal.components.DiagnosticCommandProvider;
-import io.github.kirya343.terminal.components.DiagnosticCommandRegistrar;
-import io.github.kirya343.terminal.components.DiagnosticComponentScanner;
-import io.github.kirya343.terminal.components.LocalDiagnosticCommandProvider;
+import io.github.kirya343.terminal.api.provider.DiagnosticCommandProvider;
+import io.github.kirya343.terminal.command.DiagnosticCommandRegistrar;
+import io.github.kirya343.terminal.command.provider.LocalDiagnosticCommandProvider;
+import io.github.kirya343.terminal.component.DiagnosticComponentScanner;
 import io.github.kirya343.terminal.console.DiagnosticTerminal;
-import io.github.kirya343.terminal.core.DiagnosticManager;
+import io.github.kirya343.terminal.registry.DiagnosticManager;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j 

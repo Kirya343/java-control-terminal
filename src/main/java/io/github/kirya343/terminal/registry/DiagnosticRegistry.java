@@ -1,9 +1,9 @@
-package io.github.kirya343.terminal.core;
+package io.github.kirya343.terminal.registry;
 
 import java.util.Collection;
 import java.util.Optional;
 
-import io.github.kirya343.terminal.components.DiagnosticComponent;
+import io.github.kirya343.terminal.api.component.DiagnosticComponent;
 
 public interface DiagnosticRegistry {
 

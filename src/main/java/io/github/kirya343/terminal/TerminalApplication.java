@@ -3,16 +3,16 @@ package io.github.kirya343.terminal;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
-import io.github.kirya343.terminal.components.DiagnosticComponentScanner;
+import io.github.kirya343.terminal.command.DiagnosticCommandExecutor;
+import io.github.kirya343.terminal.component.DiagnosticComponentScanner;
 import io.github.kirya343.terminal.console.DiagnosticContentLayout;
 import io.github.kirya343.terminal.console.DiagnosticScreen;
 import io.github.kirya343.terminal.console.DiagnosticScreenRenderer;
 import io.github.kirya343.terminal.console.DiagnosticTerminal;
-import io.github.kirya343.terminal.core.DiagnosticManager;
-import io.github.kirya343.terminal.core.TerminalCommandExecutor;
 import io.github.kirya343.terminal.logging.DiagnosticLoggingConfigurer;
 import io.github.kirya343.terminal.logging.LogBuffer;
 import io.github.kirya343.terminal.logging.LogCollector;
+import io.github.kirya343.terminal.registry.DiagnosticManager;
 import io.github.kirya343.terminal.runtime.TerminalConfig;
 import io.github.kirya343.terminal.runtime.TerminalInstance;
 import lombok.extern.slf4j.Slf4j;
@@ -48,8 +48,8 @@ public final class TerminalApplication {
 
         DiagnosticManager manager = createManager();
 
-        TerminalCommandExecutor commandExecutor =
-            new TerminalCommandExecutor(manager, screen);
+        DiagnosticCommandExecutor commandExecutor =
+            new DiagnosticCommandExecutor(manager, screen);
 
         DiagnosticTerminal diagnosticTerminal = new DiagnosticTerminal(
             terminal,

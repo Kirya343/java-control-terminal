@@ -3,7 +3,7 @@ package io.github.kirya343.terminal.runtime;
 import java.lang.reflect.InvocationTargetException;
 import java.util.function.Consumer;
 
-import io.github.kirya343.terminal.components.DiagnosticCommandProvider;
+import io.github.kirya343.terminal.api.provider.DiagnosticCommandProvider;
 
 public final class ApplicationLauncher {
 

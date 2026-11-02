@@ -1,6 +1,6 @@
-package io.github.kirya343.terminal.models;
+package io.github.kirya343.terminal.result;
 
-import io.github.kirya343.terminal.core.StreamingDataProvider;
+import io.github.kirya343.terminal.api.provider.StreamingDataProvider;
 
 public record StreamingResult(
     StreamingDataProvider provider,

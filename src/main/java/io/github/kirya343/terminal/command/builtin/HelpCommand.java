@@ -1,13 +1,15 @@
-package io.github.kirya343.terminal.components.commands;
+package io.github.kirya343.terminal.components.builtin;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
 
-import io.github.kirya343.terminal.components.DiagnosticComponent;
-import io.github.kirya343.terminal.core.DiagnosticTextBuilder;
-import io.github.kirya343.terminal.models.CommandResult;
-import io.github.kirya343.terminal.models.TextResult;
+import io.github.kirya343.terminal.api.command.DiagnosticCommand;
+import io.github.kirya343.terminal.api.command.TerminalCommand;
+import io.github.kirya343.terminal.api.component.DiagnosticComponent;
+import io.github.kirya343.terminal.formatting.DiagnosticTextBuilder;
+import io.github.kirya343.terminal.result.CommandResult;
+import io.github.kirya343.terminal.result.TextResult;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j 

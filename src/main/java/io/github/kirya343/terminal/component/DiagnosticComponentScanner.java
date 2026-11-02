@@ -1,4 +1,4 @@
-package io.github.kirya343.terminal.components;
+package io.github.kirya343.terminal.component;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
@@ -8,7 +8,8 @@ import java.util.List;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ScanResult;
-import io.github.kirya343.terminal.components.commands.DiagnosticCommand;
+import io.github.kirya343.terminal.api.command.DiagnosticCommand;
+import io.github.kirya343.terminal.api.component.DiagnosticComponent;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j 

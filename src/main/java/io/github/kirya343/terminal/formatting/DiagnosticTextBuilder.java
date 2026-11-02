@@ -1,4 +1,4 @@
-package io.github.kirya343.terminal.core;
+package io.github.kirya343.terminal.formatting;
 
 import java.util.ArrayList;
 import java.util.List;

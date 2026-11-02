@@ -1,4 +1,4 @@
-package io.github.kirya343.terminal.components.commands;
+package io.github.kirya343.terminal.components.builtin;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -9,11 +9,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import io.github.kirya343.terminal.core.StreamingDataProvider;
-import io.github.kirya343.terminal.models.CommandResult;
-import io.github.kirya343.terminal.models.StreamMode;
-import io.github.kirya343.terminal.models.StreamingResult;
-import io.github.kirya343.terminal.models.TextResult;
+import io.github.kirya343.terminal.api.command.DiagnosticCommand;
+import io.github.kirya343.terminal.api.command.TerminalCommand;
+import io.github.kirya343.terminal.api.provider.StreamingDataProvider;
+import io.github.kirya343.terminal.result.CommandResult;
+import io.github.kirya343.terminal.result.StreamMode;
+import io.github.kirya343.terminal.result.StreamingResult;
+import io.github.kirya343.terminal.result.TextResult;
 
 @TerminalCommand 
 public class LogsCommand implements DiagnosticCommand {

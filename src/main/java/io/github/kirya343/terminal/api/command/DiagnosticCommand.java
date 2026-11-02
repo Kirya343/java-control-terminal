@@ -1,6 +1,6 @@
-package io.github.kirya343.terminal.components.commands;
+package io.github.kirya343.terminal.api.command;
 
-import io.github.kirya343.terminal.models.CommandResult;
+import io.github.kirya343.terminal.result.CommandResult;
 
 public interface DiagnosticCommand {
 

@@ -1,4 +1,4 @@
-package io.github.kirya343.terminal.components.commands;
+package io.github.kirya343.terminal.api.command;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

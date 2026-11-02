@@ -1,4 +1,4 @@
-package io.github.kirya343.terminal.core;
+package io.github.kirya343.terminal.registry;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import io.github.kirya343.terminal.components.DiagnosticComponent;
-import io.github.kirya343.terminal.components.commands.DiagnosticCommand;
+import io.github.kirya343.terminal.api.command.DiagnosticCommand;
+import io.github.kirya343.terminal.api.component.DiagnosticComponent;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 

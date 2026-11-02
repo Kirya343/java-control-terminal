@@ -1,16 +1,17 @@
-package io.github.kirya343.terminal.core;
+package io.github.kirya343.terminal.command;
 
 import java.util.List;
 
-import io.github.kirya343.terminal.components.commands.DiagnosticCommand;
+import io.github.kirya343.terminal.api.command.DiagnosticCommand;
 import io.github.kirya343.terminal.console.DiagnosticScreen;
-import io.github.kirya343.terminal.models.CommandResult;
-import io.github.kirya343.terminal.models.StreamingResult;
-import io.github.kirya343.terminal.models.TextResult;
+import io.github.kirya343.terminal.registry.DiagnosticManager;
+import io.github.kirya343.terminal.result.CommandResult;
+import io.github.kirya343.terminal.result.StreamingResult;
+import io.github.kirya343.terminal.result.TextResult;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor 
-public class TerminalCommandExecutor {
+public class DiagnosticCommandExecutor {
 
     private final DiagnosticManager diagnosticManager;
     private final DiagnosticScreen screen;

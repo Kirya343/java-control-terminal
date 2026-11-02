@@ -1,4 +1,4 @@
-package io.github.kirya343.terminal.models;
+package io.github.kirya343.terminal.result;
 
 public record TextResult(
     String content

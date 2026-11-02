@@ -4,7 +4,7 @@ import org.jline.terminal.Attributes;
 import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp;
 
-import io.github.kirya343.terminal.core.TerminalCommandExecutor;
+import io.github.kirya343.terminal.command.DiagnosticCommandExecutor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -21,7 +21,7 @@ public class DiagnosticTerminal {
     private final DiagnosticScreen screen;
 
     @Getter
-    private final TerminalCommandExecutor commandExecutor;
+    private final DiagnosticCommandExecutor commandExecutor;
 
     private final List<String> commandHistory = new ArrayList<>();
 
