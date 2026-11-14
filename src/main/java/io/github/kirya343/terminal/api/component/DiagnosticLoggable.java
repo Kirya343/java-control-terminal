@@ -1,42 +1,32 @@
 package io.github.kirya343.terminal.api.component;
 
 import lombok.extern.slf4j.Slf4j;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 import io.github.kirya343.terminal.formatting.DiagnosticTextBuilder;
+import io.github.kirya343.terminal.logging.DiagnosticLogging;
+import io.github.kirya343.terminal.logging.LogBuffer;
+import io.github.kirya343.terminal.logging.LogCollector;
+import io.github.kirya343.terminal.logging.LogEntry;
 
 @Slf4j 
 public abstract class DiagnosticLoggable {
 
-    private static final int MAX_LOGS = 50;
+    private final LogBuffer logBuffer = new LogBuffer(50);
+    private final LogCollector collector = new LogCollector(logBuffer);
 
-    private static final DateTimeFormatter FORMATTER =
-        DateTimeFormatter.ofPattern("HH:mm:ss");
-
-    private final List<String> logs = new ArrayList<>();
-
-    public void addLog(String format, Object... args) {
-        String newLog = String.format(format, args);
-
-        log.debug(newLog);
-
-        String timestamp = LocalDateTime.now().format(FORMATTER);
-
-        logs.add(String.format("%s > %s", timestamp, newLog));
-
-        if (logs.size() > MAX_LOGS) {
-            logs.removeFirst();
-        }
+    protected DiagnosticLoggable() {
+        DiagnosticLogging.register(getClass(), collector);
     }
 
-    public DiagnosticTextBuilder getLogs() {
+    public List<LogEntry> getLogs() {
+        return logBuffer.getEntries();
+    }
+
+    public DiagnosticTextBuilder getFormattedLogs() {
         DiagnosticTextBuilder builder = new DiagnosticTextBuilder("Logs: ");
 
-        logs.forEach(l -> builder.addRow(l));
+        logBuffer.getEntries().forEach(l -> builder.addRow(l.format()));
 
         return builder;
     }

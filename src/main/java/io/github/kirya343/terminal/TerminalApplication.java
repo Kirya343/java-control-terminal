@@ -1,5 +1,8 @@
 package io.github.kirya343.terminal;
 
+import java.io.IOException;
+import java.nio.file.Files;
+
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
@@ -9,6 +12,7 @@ import io.github.kirya343.terminal.console.DiagnosticContentLayout;
 import io.github.kirya343.terminal.console.DiagnosticScreen;
 import io.github.kirya343.terminal.console.DiagnosticScreenRenderer;
 import io.github.kirya343.terminal.console.DiagnosticTerminal;
+import io.github.kirya343.terminal.logging.DiagnosticLogging;
 import io.github.kirya343.terminal.logging.DiagnosticLoggingConfigurer;
 import io.github.kirya343.terminal.logging.LogBuffer;
 import io.github.kirya343.terminal.logging.LogCollector;
@@ -25,6 +29,15 @@ public final class TerminalApplication {
         TerminalConfig config
     ) throws Exception {
 
+        if (config.getLogFile() != null) {
+            try {
+                Files.writeString(config.getLogFile(), "");
+                log.info("Log file cleared: {}", config.getLogFile().toAbsolutePath());
+            } catch (IOException e) {
+                throw new IllegalStateException("Failed to clear log file", e);
+            }
+        }
+
         LogBuffer logBuffer = new LogBuffer(1000);
         LogCollector logCollector = new LogCollector(logBuffer);
 
@@ -32,6 +45,8 @@ public final class TerminalApplication {
             new DiagnosticLoggingConfigurer(logCollector);
 
         loggingConfigurer.configure();
+
+        DiagnosticLogging.initialize(loggingConfigurer);
 
         Terminal terminal = TerminalBuilder.builder()
             .system(true)

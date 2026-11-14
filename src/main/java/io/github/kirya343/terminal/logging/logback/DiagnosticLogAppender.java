@@ -7,13 +7,23 @@ import io.github.kirya343.terminal.logging.LogEntry;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RequiredArgsConstructor 
-public class DiagnosticLogAppender
-        extends AppenderBase<ILoggingEvent> {
+public class DiagnosticLogAppender extends AppenderBase<ILoggingEvent> {
 
-    private final LogCollector collector;
-    
+    private final LogCollector globalCollector;
+    private final Map<String, LogCollector> collectors = new ConcurrentHashMap<>();
+
+    public void register(String loggerName, LogCollector collector) {
+        collectors.put(loggerName, collector);
+    }
+
+    public void unregister(String loggerName) {
+        collectors.remove(loggerName);
+    }
+
     @Override
     protected void append(ILoggingEvent event) {
         LogEntry entry = new LogEntry(
@@ -25,6 +35,12 @@ public class DiagnosticLogAppender
             null
         );
 
-        collector.collect(entry);
+        globalCollector.collect(entry);
+
+        LogCollector collector = collectors.get(event.getLoggerName());
+
+        if (collector != null) {
+            collector.collect(entry);
+        }
     }
 }

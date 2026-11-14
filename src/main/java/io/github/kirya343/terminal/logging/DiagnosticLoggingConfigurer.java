@@ -48,4 +48,20 @@ public class DiagnosticLoggingConfigurer {
         appender = null;
         rootLogger = null;
     }
+
+    public void register(Class<?> component, LogCollector collector) {
+        if (appender == null) {
+            configure();
+        }
+
+        if (appender != null) {
+            appender.register(component.getName(), collector);
+        }
+    }
+
+    public void unregister(Class<?> component) {
+        if (appender != null) {
+            appender.unregister(component.getName());
+        }
+}
 }

@@ -52,8 +52,12 @@ public class DiagnosticManager {
         String commandName = command.getName();
 
         if (componentId != null) {
-            commandName = componentId + " " + commandName;
-        }
+            if ("index".equals(commandName)) {
+                commandName = componentId;
+            } else {
+                commandName = componentId + " " + commandName;   
+            }
+        } 
         
         DiagnosticCommand existing = commandMap.putIfAbsent(commandName, command);
 

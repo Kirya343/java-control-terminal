@@ -40,6 +40,7 @@ public class DiagnosticScreen {
     }
 
     public synchronized void render() {
+
         List<String> allContent = getWrappedContent();
 
         int height = contentHeight();
