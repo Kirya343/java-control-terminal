@@ -2,6 +2,7 @@ package io.github.kirya343.terminal;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
@@ -33,6 +34,8 @@ public final class TerminalApplication {
             try {
                 Files.writeString(config.getLogFile(), "");
                 log.info("Log file cleared: {}", config.getLogFile().toAbsolutePath());
+            } catch (NoSuchFileException e) {
+                log.warn("Log not found: ", e);
             } catch (IOException e) {
                 throw new IllegalStateException("Failed to clear log file", e);
             }
