@@ -1,10 +1,12 @@
 package io.github.kirya343.terminal.runtime;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 import io.github.kirya343.terminal.TerminalApplication;
-import io.github.kirya343.terminal.api.provider.DiagnosticCommandProvider;
+import io.github.kirya343.terminal.api.old.DiagnosticCommandProvider;
 import io.github.kirya343.terminal.command.DiagnosticCommandRegistrar;
+import io.github.kirya343.terminal.command.definition.CommandGroupDefinition;
 import io.github.kirya343.terminal.command.provider.LocalDiagnosticCommandProvider;
 import io.github.kirya343.terminal.component.DiagnosticComponentScanner;
 import io.github.kirya343.terminal.console.DiagnosticTerminal;
@@ -40,10 +42,9 @@ public final class TerminalRuntime {
 
             TerminalInstance terminalInstance = TerminalApplication.create(applicationName, config);
 
-            DiagnosticManager manager = terminalInstance.manager();
-
             DiagnosticCommandRegistrar registrar =
                 new DiagnosticCommandRegistrar();
+
 
             registrar.register(
                 manager,
@@ -66,11 +67,10 @@ public final class TerminalRuntime {
 
                     String appPackage = applicationClass.getPackageName();
 
-                    DiagnosticComponentScanner.scanCommands(appPackage)
-                        .forEach(manager::registerCommand);
+                    List<CommandGroupDefinition> groups =
+                        terminalInstance.discovery().discover(appPackage);
 
-                    DiagnosticComponentScanner.scanComponents(appPackage)
-                        .forEach(manager::registerComponent);
+                    groups.forEach(terminalInstance.registry()::register);
                 }
 
                 @Override

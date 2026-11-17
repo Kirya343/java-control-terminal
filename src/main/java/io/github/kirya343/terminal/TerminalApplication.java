@@ -3,12 +3,18 @@ package io.github.kirya343.terminal;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import java.util.List;
 
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
-import io.github.kirya343.terminal.command.DiagnosticCommandExecutor;
-import io.github.kirya343.terminal.component.DiagnosticComponentScanner;
+import io.github.kirya343.terminal.command.definition.CommandGroupDefinition;
+import io.github.kirya343.terminal.command.execution.CommandExecutor;
+import io.github.kirya343.terminal.command.registry.CommandGroupDiscovery;
+import io.github.kirya343.terminal.command.registry.CommandRegistry;
+import io.github.kirya343.terminal.command.registry.CommandScanner;
+import io.github.kirya343.terminal.command.registry.DefaultCommandRegistry;
+import io.github.kirya343.terminal.command.routing.CommandRouter;
 import io.github.kirya343.terminal.console.DiagnosticContentLayout;
 import io.github.kirya343.terminal.console.DiagnosticScreen;
 import io.github.kirya343.terminal.console.DiagnosticScreenRenderer;
@@ -17,7 +23,6 @@ import io.github.kirya343.terminal.logging.DiagnosticLogging;
 import io.github.kirya343.terminal.logging.DiagnosticLoggingConfigurer;
 import io.github.kirya343.terminal.logging.LogBuffer;
 import io.github.kirya343.terminal.logging.LogCollector;
-import io.github.kirya343.terminal.registry.DiagnosticManager;
 import io.github.kirya343.terminal.runtime.TerminalConfig;
 import io.github.kirya343.terminal.runtime.TerminalInstance;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +35,8 @@ public final class TerminalApplication {
         TerminalConfig config
     ) throws Exception {
 
+        // Log file cleaning
+
         if (config.getLogFile() != null) {
             try {
                 Files.writeString(config.getLogFile(), "");
@@ -41,6 +48,8 @@ public final class TerminalApplication {
             }
         }
 
+        // Loggin injection
+
         LogBuffer logBuffer = new LogBuffer(1000);
         LogCollector logCollector = new LogCollector(logBuffer);
 
@@ -50,6 +59,8 @@ public final class TerminalApplication {
         loggingConfigurer.configure();
 
         DiagnosticLogging.initialize(loggingConfigurer);
+
+        // Terminal initializr
 
         Terminal terminal = TerminalBuilder.builder()
             .system(true)
@@ -64,10 +75,25 @@ public final class TerminalApplication {
             new DiagnosticContentLayout()
         );
 
-        DiagnosticManager manager = createManager();
+        // Commands registration
 
-        DiagnosticCommandExecutor commandExecutor =
-            new DiagnosticCommandExecutor(manager, screen);
+        CommandRegistry registry = new DefaultCommandRegistry();
+
+        CommandRouter commandRouter = new CommandRouter(registry);
+        CommandExecutor commandExecutor = new CommandExecutor(commandRouter, screen);
+
+        CommandScanner scanner = new CommandScanner();
+
+        CommandGroupDiscovery discovery =
+            new CommandGroupDiscovery(scanner);
+
+        String currentLibBasePackage = TerminalApplication.class
+            .getPackageName();
+
+        List<CommandGroupDefinition> groups =
+            discovery.discover(currentLibBasePackage);
+
+        groups.forEach(registry::register);
 
         DiagnosticTerminal diagnosticTerminal = new DiagnosticTerminal(
             terminal,
@@ -85,17 +111,8 @@ public final class TerminalApplication {
 
         return new TerminalInstance(
             diagnosticTerminal,
-            manager
-        );
-    }
-
-    private static DiagnosticManager createManager() {
-        String currentLibBasePackage = TerminalApplication.class
-            .getPackageName();
-        
-        return new DiagnosticManager(
-            DiagnosticComponentScanner.scanCommands(currentLibBasePackage), 
-            DiagnosticComponentScanner.scanComponents(currentLibBasePackage)
+            registry,
+            discovery
         );
     }
 }

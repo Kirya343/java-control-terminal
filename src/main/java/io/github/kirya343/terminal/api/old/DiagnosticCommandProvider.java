@@ -1,4 +1,4 @@
-package io.github.kirya343.terminal.api.provider;
+package io.github.kirya343.terminal.api.old;
 
 import java.util.List;
 

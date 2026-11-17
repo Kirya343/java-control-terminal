@@ -1,52 +1,70 @@
-package io.github.kirya343.terminal.command;
+package io.github.kirya343.terminal.command.execution;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
-import io.github.kirya343.terminal.api.command.DiagnosticCommand;
+import io.github.kirya343.terminal.command.definition.CommandDefinition;
+import io.github.kirya343.terminal.command.routing.CommandRoute;
+import io.github.kirya343.terminal.command.routing.CommandRouter;
 import io.github.kirya343.terminal.console.DiagnosticScreen;
-import io.github.kirya343.terminal.registry.DiagnosticManager;
-import io.github.kirya343.terminal.result.CommandResult;
 import io.github.kirya343.terminal.result.StreamingResult;
 import io.github.kirya343.terminal.result.TextResult;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor 
-public class DiagnosticCommandExecutor {
+public class CommandExecutor {
 
-    private final DiagnosticManager diagnosticManager;
+    private final CommandRouter commandRouter;
     private final DiagnosticScreen screen;
 
     private Thread streamingThread;
+
+    public void execute(String input) {
+
+        List<String> tokens = Arrays.asList(input.trim().split("\\s+"));
+
+        if (tokens.isEmpty() || tokens.size() == 0) {
+            return;
+        }
+
+        Optional<CommandRoute> route = commandRouter.route(tokens);
+
+        if (route.isEmpty()) {
+            // Команда не найдена
+            return;
+        }
+
+        execute(route.get());
+    }
     
     /**
      * Выполняет диагностическую команду.
      */
-    public void executeCommand(String input) {
+    public void execute(CommandRoute route) {
         stopStreaming();
         screen.clearContent();
 
-        String trimmedInput = input.trim();
-
-        if (trimmedInput.isEmpty()) {
-            return;
-        }
-
         try {
 
-            var entry = diagnosticManager.findCommand(trimmedInput);
+            CommandDefinition command = route.command();
 
-            String commandName = entry.getKey();
-            DiagnosticCommand command = entry.getValue();
+            Method method = command.getMethod();
 
-            String argumentsString = trimmedInput
-                .substring(commandName.length())
-                .trim();
+            long time = System.nanoTime();
 
-            String[] commandArgs = argumentsString.isEmpty()
-                ? new String[0]
-              : argumentsString.split("\\s+");
+            Object result = method.invoke(command.getInstance());
 
-            CommandResult result = command.execute(commandArgs);
+            long resultTime = System.nanoTime() - time;
+
+            if (method.getReturnType() == void.class) {
+                screen.setContent(
+                    List.of("Ok, response: " + resultTime / 1_000_000 + "ms")
+                );
+
+                return;
+            }
 
             if (result instanceof StreamingResult streamingResult) {
                 streamingThread = new Thread(() -> {
