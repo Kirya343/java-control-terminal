@@ -5,46 +5,30 @@ import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import io.github.kirya343.terminal.api.command.DiagnosticCommand;
-import io.github.kirya343.terminal.api.command.TerminalCommand;
+import io.github.kirya343.terminal.api.annotations.Command;
+import io.github.kirya343.terminal.api.annotations.CommandGroup;
+import io.github.kirya343.terminal.api.annotations.CommandParam;
 import io.github.kirya343.terminal.api.provider.StreamingDataProvider;
 import io.github.kirya343.terminal.result.CommandResult;
 import io.github.kirya343.terminal.result.StreamMode;
 import io.github.kirya343.terminal.result.StreamingResult;
 import io.github.kirya343.terminal.result.TextResult;
 
-@TerminalCommand 
-public class LogsCommand implements DiagnosticCommand {
+@CommandGroup("logs")
+public class LogsCommands {
 
     private int limit = 50;
     private static final Path LOG_FILE = Path.of(
         "logs/application.log"
     );
 
-    @Override
-    public String getName() {
-        return "logs";
-    }
-
-    @Override
-    public String getDescription() {
-        return "Shows application logs";
-    }
-
-    @Override
-    public CommandResult execute(String[] args) {
-        boolean follow = Arrays.asList(args).contains("-f");
-
-        for (String arg : args) {
-            if (!arg.equals("-f")) {
-                limit = Integer.parseInt(arg);
-                break;
-            }
-        }
+    @Command(
+        description = "Shows application logs"
+    )
+    public CommandResult getLogs(@CommandParam("f") boolean follow) {
 
         if (follow) {
             return new StreamingResult(

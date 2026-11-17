@@ -112,7 +112,8 @@ public final class TerminalApplication {
         return new TerminalInstance(
             diagnosticTerminal,
             registry,
-            discovery
+            discovery,
+            scanner
         );
     }
 }
