@@ -3,14 +3,13 @@ package io.github.kirya343.terminal;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
-import java.util.List;
 
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
-import io.github.kirya343.terminal.command.definition.CommandGroupDefinition;
+import io.github.kirya343.terminal.command.execution.CommandArgumentResolver;
 import io.github.kirya343.terminal.command.execution.CommandExecutor;
-import io.github.kirya343.terminal.command.registry.CommandGroupDiscovery;
+import io.github.kirya343.terminal.command.execution.DefaultCommandArgumentResolver;
 import io.github.kirya343.terminal.command.registry.CommandRegistry;
 import io.github.kirya343.terminal.command.registry.CommandScanner;
 import io.github.kirya343.terminal.command.registry.DefaultCommandRegistry;
@@ -80,20 +79,10 @@ public final class TerminalApplication {
         CommandRegistry registry = new DefaultCommandRegistry();
 
         CommandRouter commandRouter = new CommandRouter(registry);
-        CommandExecutor commandExecutor = new CommandExecutor(commandRouter, screen);
+        CommandArgumentResolver argumentResolver = new DefaultCommandArgumentResolver();
+        CommandExecutor commandExecutor = new CommandExecutor(commandRouter, screen, argumentResolver);
 
         CommandScanner scanner = new CommandScanner();
-
-        CommandGroupDiscovery discovery =
-            new CommandGroupDiscovery(scanner);
-
-        String currentLibBasePackage = TerminalApplication.class
-            .getPackageName();
-
-        List<CommandGroupDefinition> groups =
-            discovery.discover(currentLibBasePackage);
-
-        groups.forEach(registry::register);
 
         DiagnosticTerminal diagnosticTerminal = new DiagnosticTerminal(
             terminal,
@@ -112,7 +101,6 @@ public final class TerminalApplication {
         return new TerminalInstance(
             diagnosticTerminal,
             registry,
-            discovery,
             scanner
         );
     }

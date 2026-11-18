@@ -41,51 +41,46 @@ public final class CommandRouter {
         int index,
         Map<String, String> pathParameters
     ) {
-        // 1. Ищем команду текущей группы.
-        if (index < tokens.size()) {
-            String token = tokens.get(index);
-
-            Optional<CommandDefinition> command =
-                group.findCommand(token);
-
-            if (command.isPresent()) {
-                if (index == tokens.size() - 1) {
-                    return Optional.of(
-                        new CommandRoute(command.get(), pathParameters)
-                    );
-                }
-            }
-        }
-
-        // 2. Default-команда текущей группы.
-        if (index == tokens.size()) {
-            Optional<CommandDefinition> command =
-                group.findCommand("");
-
-            if (command.isPresent()) {
-                return Optional.of(
-                    new CommandRoute(command.get(), pathParameters)
-                );
-            }
-
-            return Optional.empty();
+        // 1. Если токенов больше нет — ищем default-команду.
+        if (index >= tokens.size()) {
+            return group.findCommand("")
+                .map(command -> new CommandRoute(
+                    command,
+                    pathParameters,
+                    List.of()
+                ));
         }
 
         String token = tokens.get(index);
 
-        // 3. Сначала проверяем статические группы.
+        // 2. Ищем именованную команду.
+        Optional<CommandDefinition> command = group.findCommand(token);
+
+        if (command.isPresent()) {
+            return Optional.of(new CommandRoute(
+                command.get(),
+                pathParameters,
+                tokens.subList(index + 1, tokens.size())
+            ));
+        }
+
+        // 3. Сначала статические группы.
         for (CommandGroupDefinition child : group.getGroups()) {
             if (isDynamic(child.getName())) {
                 continue;
             }
 
             if (child.getName().equals(token)) {
-                return findRoute(
+                Optional<CommandRoute> result = findRoute(
                     child,
                     tokens,
                     index + 1,
                     pathParameters
                 );
+
+                if (result.isPresent()) {
+                    return result;
+                }
             }
         }
 
@@ -97,9 +92,7 @@ public final class CommandRouter {
 
             String parameterName = extractParameterName(child.getName());
 
-            Map<String, String> parameters =
-                new HashMap<>(pathParameters);
-
+            Map<String, String> parameters = new HashMap<>(pathParameters);
             parameters.put(parameterName, token);
 
             Optional<CommandRoute> result = findRoute(
@@ -114,7 +107,13 @@ public final class CommandRouter {
             }
         }
 
-        return Optional.empty();
+        // 5. Если группа не подошла — пробуем её default-команду.
+        return group.findCommand("")
+            .map(defaultCommand -> new CommandRoute(
+                defaultCommand,
+                pathParameters,
+                tokens.subList(index, tokens.size())
+            ));
     }
 
     private boolean isDynamic(String name) {

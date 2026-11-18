@@ -1,8 +1,6 @@
 package io.github.kirya343.terminal.command.registry;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,13 +35,12 @@ public final class CommandScanner {
         CommandGroup groupAnnotation = groupClass.getAnnotation(CommandGroup.class);
 
         List<CommandDefinition> commands = scanCommands(instance);
-        List<CommandGroupDefinition> groups = scanNestedGroups(instance);
 
         return new CommandGroupDefinition(
             groupAnnotation.value(),
             groupAnnotation.description(),
             commands,
-            groups
+            List.of()
         );
     }
 
@@ -125,55 +122,5 @@ public final class CommandScanner {
         }
 
         return parameters;
-    }
-
-    private List<CommandGroupDefinition> scanNestedGroups(Object parentInstance) {
-        List<CommandGroupDefinition> groups = new ArrayList<>();
-
-        for (Class<?> nestedClass : parentInstance.getClass().getDeclaredClasses()) {
-            if (!nestedClass.isAnnotationPresent(CommandGroup.class)) {
-                continue;
-            }
-
-            Object nestedInstance = createNestedInstance(
-                nestedClass,
-                parentInstance
-            );
-
-            groups.add(scanGroup(nestedInstance));
-        }
-
-        return groups;
-    }
-
-    private Object createNestedInstance(
-        Class<?> nestedClass,
-        Object parentInstance
-    ) {
-        try {
-            Constructor<?> constructor;
-
-            if (Modifier.isStatic(nestedClass.getModifiers())) {
-                constructor = nestedClass.getDeclaredConstructor();
-                constructor.setAccessible(true);
-
-                return constructor.newInstance();
-            }
-
-            constructor = nestedClass.getDeclaredConstructor(
-                nestedClass.getEnclosingClass()
-            );
-
-            constructor.setAccessible(true);
-
-            return constructor.newInstance(parentInstance);
-
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException(
-                "Cannot create command group instance: " +
-                nestedClass.getName(),
-                e
-            );
-        }
     }
 }

@@ -12,16 +12,21 @@ import io.github.kirya343.terminal.console.DiagnosticScreen;
 import io.github.kirya343.terminal.result.StreamingResult;
 import io.github.kirya343.terminal.result.TextResult;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor 
+@Slf4j 
 public class CommandExecutor {
 
     private final CommandRouter commandRouter;
     private final DiagnosticScreen screen;
+    private final CommandArgumentResolver argumentResolver;
 
     private Thread streamingThread;
 
     public void execute(String input) {
+
+        log.debug("Executing command: {}", input);
 
         List<String> tokens = Arrays.asList(input.trim().split("\\s+"));
 
@@ -46,6 +51,8 @@ public class CommandExecutor {
         stopStreaming();
         screen.clearContent();
 
+        log.debug("Command pathParams: {}", route.pathParameters());
+
         try {
 
             CommandDefinition command = route.command();
@@ -54,7 +61,12 @@ public class CommandExecutor {
 
             long time = System.nanoTime();
 
-            Object result = method.invoke(command.getInstance());
+            Object[] arguments = argumentResolver.resolve(route);
+
+            Object result = method.invoke(
+                command.getInstance(),
+                arguments
+            );
 
             long resultTime = System.nanoTime() - time;
 
