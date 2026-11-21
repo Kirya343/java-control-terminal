@@ -1,0 +1,23 @@
+package io.github.kirya343.terminal.api.annotations;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target(ElementType.PARAMETER)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface CommandParam {
+
+    String value();
+
+    String[] aliases() default {};
+
+    boolean optional() default false;
+
+    String description() default "";
+
+    String example() default "";
+    
+    String defaultValue() default "";
+}

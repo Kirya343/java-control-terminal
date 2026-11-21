@@ -2,7 +2,7 @@ package io.github.kirya343.terminal.runtime;
 
 import java.util.function.Consumer;
 
-import io.github.kirya343.terminal.api.provider.DiagnosticCommandProvider;
+import io.github.kirya343.terminal.command.registration.CommandInstanceProvider;
 
 @FunctionalInterface
 public interface ApplicationAdapter {
@@ -10,7 +10,7 @@ public interface ApplicationAdapter {
     void launch(
         Class<?> applicationClass,
         String[] args,
-        Consumer<DiagnosticCommandProvider> registerProvider,
+        Consumer<CommandInstanceProvider> commandInstanceProvider,
         ApplicationLifecycle lifecycle
     ) throws Exception;
 }

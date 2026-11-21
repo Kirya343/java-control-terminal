@@ -27,7 +27,7 @@ public class TerminalConfig {
         TerminalConfig config = new TerminalConfig();
 
         config.addStartupTask(t ->
-            t.getCommandExecutor().executeCommand("logs -f 100")
+            t.getCommandExecutor().execute("logs -f 100")
         );
 
         return config;

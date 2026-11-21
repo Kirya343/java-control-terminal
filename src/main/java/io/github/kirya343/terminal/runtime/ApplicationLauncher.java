@@ -3,7 +3,7 @@ package io.github.kirya343.terminal.runtime;
 import java.lang.reflect.InvocationTargetException;
 import java.util.function.Consumer;
 
-import io.github.kirya343.terminal.api.provider.DiagnosticCommandProvider;
+import io.github.kirya343.terminal.command.registration.CommandInstanceProvider;
 
 public final class ApplicationLauncher {
 
@@ -13,7 +13,7 @@ public final class ApplicationLauncher {
     public static void launch(
             Class<?> applicationClass,
             String[] args,
-            Consumer<DiagnosticCommandProvider> registerProvider,
+            Consumer<CommandInstanceProvider> commandInstanceProvider,
             ApplicationAdapter adapter,
             ApplicationLifecycle lifecycle
     ) {
@@ -23,7 +23,7 @@ public final class ApplicationLauncher {
             adapter.launch(
                 applicationClass,
                 args,
-                registerProvider,
+                commandInstanceProvider,
                 lifecycle
             );
 

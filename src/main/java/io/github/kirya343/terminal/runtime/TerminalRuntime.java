@@ -3,12 +3,11 @@ package io.github.kirya343.terminal.runtime;
 import java.util.function.Consumer;
 
 import io.github.kirya343.terminal.TerminalApplication;
-import io.github.kirya343.terminal.api.provider.DiagnosticCommandProvider;
-import io.github.kirya343.terminal.command.DiagnosticCommandRegistrar;
-import io.github.kirya343.terminal.command.provider.LocalDiagnosticCommandProvider;
-import io.github.kirya343.terminal.component.DiagnosticComponentScanner;
+import io.github.kirya343.terminal.command.builtin.HelpCommands;
+import io.github.kirya343.terminal.command.builtin.LogsCommands;
+import io.github.kirya343.terminal.command.registration.CommandInstanceProvider;
+import io.github.kirya343.terminal.command.registration.LocalCommandInstanceProvider;
 import io.github.kirya343.terminal.console.DiagnosticTerminal;
-import io.github.kirya343.terminal.registry.DiagnosticManager;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j 
@@ -40,21 +39,21 @@ public final class TerminalRuntime {
 
             TerminalInstance terminalInstance = TerminalApplication.create(applicationName, config);
 
-            DiagnosticManager manager = terminalInstance.manager();
+            HelpCommands helpCommands = new HelpCommands(terminalInstance.registry());
 
-            DiagnosticCommandRegistrar registrar =
-                new DiagnosticCommandRegistrar();
+            LocalCommandInstanceProvider instanceProvider = new LocalCommandInstanceProvider();
 
-            registrar.register(
-                manager,
-                new LocalDiagnosticCommandProvider(() -> manager.getCommands(), manager.getComponents())
-            );
+            instanceProvider.register(HelpCommands.class, helpCommands);
+            instanceProvider.register(LogsCommands.class, new LogsCommands());
 
-            Consumer<DiagnosticCommandProvider> registerProvider =
-                provider -> registrar.register(
-                    manager,
-                    provider
-                );
+            instanceProvider.getInstances().stream()
+                .map(terminalInstance.scanner()::scan)
+                .forEach(terminalInstance.registry()::register);
+
+            Consumer<CommandInstanceProvider> applicationInstanceProvider =
+                provider -> provider.getInstances().stream()
+                    .map(terminalInstance.scanner()::scan)
+                    .forEach(terminalInstance.registry()::register);
 
             DiagnosticTerminal terminal = terminalInstance.terminal();
 
@@ -63,26 +62,19 @@ public final class TerminalRuntime {
                 @Override
                 public void onStarted() {
                     terminalInstance.terminal().getScreen().setStatus("ONLINE");
-
-                    String appPackage = applicationClass.getPackageName();
-
-                    DiagnosticComponentScanner.scanCommands(appPackage)
-                        .forEach(manager::registerCommand);
-
-                    DiagnosticComponentScanner.scanComponents(appPackage)
-                        .forEach(manager::registerComponent);
+                    log.info(" === Application started === ");
                 }
 
                 @Override
                 public void onStopped() {
                     terminalInstance.terminal().getScreen().setStatus("OFFLINE");
-                    log.info("Application stopped");
+                    log.info(" === Application stopped === ");
                 }
 
                 @Override
                 public void onFailed(Throwable exception) {
                     terminalInstance.terminal().getScreen().setStatus("OFFLINE");
-                    log.error("Application failed", exception);
+                    log.error(" === Application failed === ", exception);
                 }
             };
 
@@ -92,7 +84,7 @@ public final class TerminalRuntime {
                         ApplicationLauncher.launch(
                             applicationClass,
                             args,
-                            registerProvider,
+                            applicationInstanceProvider,
                             adapter,
                             lifecycle
                         );
