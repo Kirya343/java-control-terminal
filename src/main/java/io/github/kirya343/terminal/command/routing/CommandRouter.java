@@ -65,12 +65,12 @@ public final class CommandRouter {
         }
 
         // 3. Сначала статические группы.
-        for (CommandGroupDefinition child : group.getGroups()) {
-            if (isDynamic(child.getName())) {
+        for (CommandGroupDefinition child : group.groups()) {
+            if (isDynamic(child.name())) {
                 continue;
             }
 
-            if (child.getName().equals(token)) {
+            if (child.name().equals(token)) {
                 Optional<CommandRoute> result = findRoute(
                     child,
                     tokens,
@@ -85,12 +85,12 @@ public final class CommandRouter {
         }
 
         // 4. Затем динамические группы.
-        for (CommandGroupDefinition child : group.getGroups()) {
-            if (!isDynamic(child.getName())) {
+        for (CommandGroupDefinition child : group.groups()) {
+            if (!isDynamic(child.name())) {
                 continue;
             }
 
-            String parameterName = extractParameterName(child.getName());
+            String parameterName = extractParameterName(child.name());
 
             Map<String, String> parameters = new HashMap<>(pathParameters);
             parameters.put(parameterName, token);

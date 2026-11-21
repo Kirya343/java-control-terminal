@@ -3,8 +3,10 @@ package io.github.kirya343.terminal.command.registry;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import io.github.kirya343.terminal.api.annotations.Command;
 import io.github.kirya343.terminal.api.annotations.CommandGroup;
@@ -100,6 +102,7 @@ public final class CommandScanner {
                 parameters.add(new CommandParameterDefinition(
                     commandParam.value(),
                     parameter.getType(),
+                    List.of(commandParam.aliases()),
                     commandParam.optional(),
                     false,
                     commandParam.description(),
@@ -113,6 +116,7 @@ public final class CommandScanner {
             parameters.add(new CommandParameterDefinition(
                 pathParam.value(),
                 parameter.getType(),
+                List.of(),
                 false,
                 true,
                 pathParam.description(),
@@ -121,6 +125,45 @@ public final class CommandScanner {
             ));
         }
 
+        validateParameterNames(parameters, method);
+
         return parameters;
+    }
+
+    private void validateParameterNames(
+        List<CommandParameterDefinition> parameters,
+        Method method
+    ) {
+        Set<String> longNames = new HashSet<>();
+        Set<String> shortNames = new HashSet<>();
+
+        for (CommandParameterDefinition parameter : parameters) {
+            if (parameter.pathParameter()) {
+                continue;
+            }
+
+            if (!longNames.add(parameter.name())) {
+                throw new IllegalArgumentException(
+                    "Duplicate command parameter: --" + parameter.name()
+                        + " in " + method.getName()
+                );
+            }
+
+            for (String alias : parameter.aliases()) {
+                if (alias.length() != 1) {
+                    throw new IllegalArgumentException(
+                        "Short alias must contain exactly one character: "
+                            + alias
+                    );
+                }
+
+                if (!shortNames.add(alias)) {
+                    throw new IllegalArgumentException(
+                        "Duplicate command parameter alias: -" + alias
+                            + " in " + method.getName()
+                    );
+                }
+            }
+        }
     }
 }

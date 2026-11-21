@@ -7,7 +7,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import io.github.kirya343.terminal.command.definition.CommandGroupDefinition;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j 
 public final class DefaultCommandRegistry implements CommandRegistry {
 
     private final Map<String, CommandGroupDefinition> groups = new LinkedHashMap<>();
@@ -15,10 +17,12 @@ public final class DefaultCommandRegistry implements CommandRegistry {
     @Override
     public void register(CommandGroupDefinition definition) {
         if (definition == null) {
-            throw new IllegalArgumentException("Command group definition cannot be null");
+            throw new IllegalArgumentException(
+                "Command group definition cannot be null"
+            );
         }
 
-        String name = definition.getName();
+        String name = definition.name();
 
         if (groups.containsKey(name)) {
             throw new IllegalStateException(
@@ -27,6 +31,55 @@ public final class DefaultCommandRegistry implements CommandRegistry {
         }
 
         groups.put(name, definition);
+
+        log.info("Registered command group:\n{}", formatGroup(definition, ""));
+    }
+
+    private String formatGroup(
+        CommandGroupDefinition group,
+        String parentPath
+    ) {
+        String groupPath = parentPath.isBlank()
+            ? group.name()
+            : parentPath + " " + group.name();
+
+        StringBuilder builder = new StringBuilder()
+            .append(groupPath);
+
+        if (!group.description().isBlank()) {
+            builder.append(" - ").append(group.description());
+        }
+
+        for (var command : group.commands()) {
+            builder.append("\n  ").append(groupPath);
+
+            if (!command.name().isBlank()) {
+                builder.append(" ").append(command.name());
+            }
+
+            for (var parameter : command.parameters()) {
+                builder.append(" ");
+
+                if (parameter.pathParameter()) {
+                    builder.append("{").append(parameter.name()).append("}");
+                } else {
+                    builder.append("--").append(parameter.name());
+
+                    if (!parameter.aliases().isEmpty()) {
+                        builder.append(" (-")
+                            .append(String.join(", -", parameter.aliases()))
+                            .append(")");
+                    }
+                }
+            }
+        }
+
+        for (var nested : group.groups()) {
+            builder.append("\n")
+                .append(formatGroup(nested, groupPath));
+        }
+
+        return builder.toString();
     }
 
     @Override

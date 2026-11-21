@@ -28,7 +28,7 @@ public class HelpCommands {
             new DiagnosticTextBuilder("Application commands:");
 
         commandRegistry.getGroups().stream()
-            .sorted(Comparator.comparing(CommandGroupDefinition::getName))
+            .sorted(Comparator.comparing(CommandGroupDefinition::name))
             .forEach(group -> addGroup(builder, group, ""));
 
         return new TextResult(builder.getContent());
@@ -40,28 +40,28 @@ public class HelpCommands {
         String parentPath
     ) {
         String groupPath = parentPath.isBlank()
-            ? group.getName()
-            : parentPath + " " + group.getName();
+            ? group.name()
+            : parentPath + " " + group.name();
 
         DiagnosticTextBuilder section = new DiagnosticTextBuilder(
             groupPath + " commands"
         );
 
-        if (!group.getDescription().isBlank()) {
-            section.addRow(group.getDescription());
+        if (!group.description().isBlank()) {
+            section.addRow(group.description());
         }
 
         section.addRow("Usage: " + groupPath + " <command> [arguments]");
         section.addRow("");
 
-        group.getCommands().stream()
-            .sorted(Comparator.comparing(CommandDefinition::getName))
+        group.commands().stream()
+            .sorted(Comparator.comparing(CommandDefinition::name))
             .forEach(command -> addCommand(section, command, groupPath));
 
         builder.addSection(section);
 
-        group.getGroups().stream()
-            .sorted(Comparator.comparing(CommandGroupDefinition::getName))
+        group.groups().stream()
+            .sorted(Comparator.comparing(CommandGroupDefinition::name))
             .forEach(nested -> addGroup(builder, nested, groupPath));
     }
 
@@ -72,11 +72,11 @@ public class HelpCommands {
     ) {
         String commandPath = groupPath;
 
-        if (!command.getName().isBlank()) {
-            commandPath += " " + command.getName();
+        if (!command.name().isBlank()) {
+            commandPath += " " + command.name();
         }
 
-        String usage = command.getParameters().stream()
+        String usage = command.parameters().stream()
             .map(this::formatParameter)
             .collect(Collectors.joining(" "));
 
@@ -86,30 +86,40 @@ public class HelpCommands {
 
         builder.addRow(commandPath);
 
-        if (!command.getDescription().isBlank()) {
-            builder.addRow("    " + command.getDescription());
+        if (!command.description().isBlank()) {
+            builder.addRow("    " + command.description());
         }
 
-        command.getParameters().forEach(parameter -> {
-            String description = parameter.getDescription();
+        command.parameters().forEach(parameter -> {
+            String description = parameter.description();
 
-            if (parameter.isPathParameter()) {
+            if (parameter.pathParameter()) {
                 description = "[path] " + description;
             }
 
-            if (parameter.isOptional()) {
+            if (parameter.optional()) {
                 description = "[optional] " + description;
             }
 
-            if (parameter.getExample() != null
-                && !parameter.getExample().isBlank()) {
-                description += " (example: " + parameter.getExample() + ")";
+            if (parameter.example() != null
+                && !parameter.example().isBlank()) {
+                description += " (example: " + parameter.example() + ")";
+            }
+
+            String name = parameter.pathParameter()
+                ? parameter.name()
+                : "--" + parameter.name();
+
+            if (!parameter.aliases().isEmpty()) {
+                name += ", " + parameter.aliases().stream()
+                    .map(alias -> "-" + alias)
+                    .collect(Collectors.joining(", "));
             }
 
             builder.addRow(String.format(
-                "    %-15s %-10s %s",
-                parameter.getName(),
-                parameter.getType().getSimpleName(),
+                "    %-20s %-10s %s",
+                name,
+                parameter.type().getSimpleName(),
                 description
             ));
         });
@@ -118,12 +128,16 @@ public class HelpCommands {
     }
 
     private String formatParameter(CommandParameterDefinition parameter) {
-        String name = parameter.isPathParameter()
-            ? "{" + parameter.getName() + "}"
-            : parameter.getName();
+        if (parameter.pathParameter()) {
+            return parameter.optional()
+                ? "[" + parameter.name() + "]"
+                : "<" + parameter.name() + ">";
+        }
 
-        return parameter.isOptional()
+        String name = "--" + parameter.name();
+
+        return parameter.optional()
             ? "[" + name + "]"
-            : "<" + name + ">";
+            : name;
     }
 }

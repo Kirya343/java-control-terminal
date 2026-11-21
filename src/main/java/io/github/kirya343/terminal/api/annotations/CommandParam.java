@@ -11,6 +11,8 @@ public @interface CommandParam {
 
     String value();
 
+    String[] aliases() default {};
+
     boolean optional() default false;
 
     String description() default "";

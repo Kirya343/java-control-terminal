@@ -28,7 +28,14 @@ public class LogsCommands {
     @Command(
         description = "Shows application logs"
     )
-    public CommandResult getLogs(@CommandParam(value = "f", optional = true) boolean follow) {
+    public CommandResult getLogs(
+        @CommandParam(
+            value = "follow",
+            aliases = {"f"}, 
+            optional = true,
+            description = "Follow logs continuously"
+        ) boolean follow
+    ) {
 
         if (follow) {
             return new StreamingResult(

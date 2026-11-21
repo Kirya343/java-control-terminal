@@ -7,78 +7,50 @@ import java.util.Map;
 import io.github.kirya343.terminal.command.definition.CommandDefinition;
 import io.github.kirya343.terminal.command.definition.CommandParameterDefinition;
 import io.github.kirya343.terminal.command.routing.CommandRoute;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor 
 public final class DefaultCommandArgumentResolver implements CommandArgumentResolver {
+
+    private final CommandArgumentParser parser;
 
     @Override 
     public Object[] resolve(CommandRoute route) {
         CommandDefinition command = route.command();
-        List<CommandParameterDefinition> parameters = command.getParameters();
 
-        Map<String, String> values = new HashMap<>(route.pathParameters());
-        List<String> arguments = route.arguments();
+        List<CommandParameterDefinition> parameters =
+            command.parameters();
 
-        for (int i = 0; i < arguments.size(); i++) {
-            values.put(String.valueOf(i), arguments.get(i));
-        }
+        Map<String, String> values = new HashMap<>(
+            route.pathParameters()
+        );
+
+        values.putAll(parser.parse(parameters, route.arguments()));
 
         Object[] resolved = new Object[parameters.size()];
 
-        int argumentIndex = 0;
-
         for (CommandParameterDefinition parameter : parameters) {
-            String value;
-
-            if (parameter.isPathParameter()) {
-                value = route.pathParameters().get(parameter.getName());
-            } else {
-                value = resolveArgument(parameter, arguments, argumentIndex);
-                if (value != null) {
-                    argumentIndex++;
-                }
-            }
+            String value = values.get(parameter.name());
 
             if (value == null) {
-                if (parameter.isOptional()) {
-                    resolved[parameter.getIndex()] = defaultValue(parameter.getType());
+                if (parameter.optional()) {
+                    resolved[parameter.index()] =
+                        defaultValue(parameter.type());
                     continue;
                 }
 
                 throw new IllegalArgumentException(
-                    "Missing required parameter: " + parameter.getName()
+                    "Missing required parameter: " + parameter.name()
                 );
             }
 
-            resolved[parameter.getIndex()] = convert(value, parameter.getType());
+            resolved[parameter.index()] = convert(
+                value,
+                parameter.type()
+            );
         }
 
         return resolved;
-    }
-
-    private String resolveArgument(
-        CommandParameterDefinition parameter,
-        List<String> arguments,
-        int index
-    ) {
-        if (index >= arguments.size()) {
-            return null;
-        }
-
-        String argument = arguments.get(index);
-
-        if (parameter.getType() == boolean.class
-            || parameter.getType() == Boolean.class) {
-
-            if (argument.equalsIgnoreCase(parameter.getName())) {
-                return "true";
-            }
-
-            if (argument.startsWith("-")) {
-                return null;
-            }
-        }
-
-        return argument;
     }
 
     private Object convert(String value, Class<?> type) {

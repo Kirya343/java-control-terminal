@@ -7,8 +7,10 @@ import java.nio.file.NoSuchFileException;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
+import io.github.kirya343.terminal.command.execution.CommandArgumentParser;
 import io.github.kirya343.terminal.command.execution.CommandArgumentResolver;
 import io.github.kirya343.terminal.command.execution.CommandExecutor;
+import io.github.kirya343.terminal.command.execution.DefaultCommandArgumentParser;
 import io.github.kirya343.terminal.command.execution.DefaultCommandArgumentResolver;
 import io.github.kirya343.terminal.command.registry.CommandRegistry;
 import io.github.kirya343.terminal.command.registry.CommandScanner;
@@ -79,7 +81,9 @@ public final class TerminalApplication {
         CommandRegistry registry = new DefaultCommandRegistry();
 
         CommandRouter commandRouter = new CommandRouter(registry);
-        CommandArgumentResolver argumentResolver = new DefaultCommandArgumentResolver();
+
+        CommandArgumentParser parser = new DefaultCommandArgumentParser();
+        CommandArgumentResolver argumentResolver = new DefaultCommandArgumentResolver(parser);
         CommandExecutor commandExecutor = new CommandExecutor(commandRouter, screen, argumentResolver);
 
         CommandScanner scanner = new CommandScanner();

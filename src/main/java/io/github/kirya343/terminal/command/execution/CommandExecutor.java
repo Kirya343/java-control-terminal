@@ -57,14 +57,14 @@ public class CommandExecutor {
 
             CommandDefinition command = route.command();
 
-            Method method = command.getMethod();
+            Method method = command.method();
 
             long time = System.nanoTime();
 
             Object[] arguments = argumentResolver.resolve(route);
 
             Object result = method.invoke(
-                command.getInstance(),
+                command.instance(),
                 arguments
             );
 
